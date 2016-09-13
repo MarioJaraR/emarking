@@ -1538,7 +1538,57 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2016090803, 'emarking');
     }
+    if ($oldversion < 2016091201) {
     
+    	// Rename field activityid on table emarking_edited_activities to NEWNAMEGOESHERE.
+    	$table = new xmldb_table('emarking_edited_activities');
+    	$field = new xmldb_field('activityid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'id');
+    
+    	// Launch rename field activityid.
+    	$dbman->rename_field($table, $field, 'draftid');
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016091201, 'emarking');
+    }
+    if ($oldversion < 2016091202) {
+    
+    	// Define table emarking_edited_activities to be dropped.
+    	$table = new xmldb_table('emarking_edited_activities');
+    
+    	// Conditionally launch drop table for emarking_edited_activities.
+    	if ($dbman->table_exists($table)) {
+    		$dbman->drop_table($table);
+    	}
+    	$table = new xmldb_table('emarking_activity_draft');
+    	
+    	// Conditionally launch drop table for emarking_activity_draft.
+    	if ($dbman->table_exists($table)) {
+    		$dbman->drop_table($table);
+    	}
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016091202, 'emarking');
+    }
+    if ($oldversion < 2016091203) {
+    
+    	// Define field parent to be added to emarking_activities.
+    	$table = new xmldb_table('emarking_activities');
+    	$field = new xmldb_field('parent', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'rubricid');
+    
+    	// Conditionally launch add field parent.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '1', 'parent');
+    	
+    	// Conditionally launch add field status.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016091203, 'emarking');
+    }
     
     return true;
 }
